@@ -11,7 +11,7 @@ import sc "core:strconv"
 
 
 hex_size :: 5
-DEBUG::true
+DEBUG::false
 Root_Three:: 1.7320508075688772935274463415059
 
 
@@ -151,9 +151,15 @@ main::proc(){
             mouse_Pos[1] = mouse_Pos[1] - auto_cast (start_y - (y_range/2) + curr_y )
             mouse_cord = pix_hex(mouse_Pos,size)
             clear(&path)
-            path = path_finder_full(&tiles, selected_tiles[0], mouse_cord, num_x, num_y)
+            path = path_finder(&tiles, selected_tiles[0], mouse_cord, num_x, num_y)
         }
         if(rl.IsMouseButtonReleased(.RIGHT)){
+            mouse_Pos = rl.GetMousePosition()
+            mouse_Pos[0] = mouse_Pos[0] - auto_cast (start_x - (warp_range/2) +curr_x)
+            mouse_Pos[1] = mouse_Pos[1] - auto_cast (start_y - (y_range/2) + curr_y )
+            mouse_cord = pix_hex(mouse_Pos,size)
+            clear(&path)
+            path = path_finder(&tiles, selected_tiles[0], mouse_cord, num_x, num_y)
             clear(&selected_tiles)
         }
         if(len(path) >0){
@@ -163,8 +169,16 @@ main::proc(){
         if(rl.IsKeyPressed(.C)){
             clear(&path)
         }
+        if(rl.IsMouseButtonPressed(.LEFT)){
+            mouse_Pos = rl.GetMousePosition()
+            mouse_Pos[0] = mouse_Pos[0] - auto_cast (start_x - (warp_range/2) +curr_x)
+            mouse_Pos[1] = mouse_Pos[1] - auto_cast (start_y - (y_range/2) + curr_y )
+            mouse_cord = pix_hex(mouse_Pos,size)
+            mouse_cord = hex_to_index_unsafe(warp_hex(mouse_cord, num_x))
+            tiles[mouse_cord[0]][mouse_cord[1]].color=rl.RED
+        }
 
-        if(rl.IsMouseButtonDown(.LEFT)){
+        if(rl.IsMouseButtonDown(.MIDDLE)){
             dist = rl.GetMouseDelta()
             curr_x += auto_cast dist[0]
             //curr_y += auto_cast dist[1]

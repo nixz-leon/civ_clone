@@ -18,7 +18,7 @@ dist::proc(qr1,qr2:[2]int)->(f32){ //this one work
 alt_dist::proc(qr1,qr2:[2]int) -> (f32){
     a:int = abs(qr1[0]-qr2[0])
     b:int = abs(qr1[1]-qr2[1])
-    c:int = abs((-qr1[0]-qr1[1]) - (-qr1[0]-qr1[1]))
+    c:int = abs((-qr1[0]-qr1[1]) - (-qr2[0]-qr2[1]))
     if(a > b && a > c){
         return auto_cast a
     }else if (b > a && b > c){
@@ -26,6 +26,14 @@ alt_dist::proc(qr1,qr2:[2]int) -> (f32){
     }else{
         return auto_cast c
     }
+}
+alt_dist2::proc(qr1,qr2:[2]int) -> (f32){
+    temp:[2]int=qr1-qr2
+    temp2:[3]f32
+    temp2[0] = cast(f32)temp[0]
+    temp2[1] = cast(f32)temp[1]
+    temp2[2] = -1*temp2[0] - temp2[1]
+    return l.dot(temp2, temp2)
 }
 
 lerp::proc(a,b:f32,t:f32) ->(f32){
@@ -200,6 +208,10 @@ path_finder_full::proc(world:^[160][160]tile, start, finish:[2]int, num_x,num_y:
 }
 
 path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) -> ([dynamic][2]int){
+    empty:[dynamic][2]int
+    if(get_movability(world, finsih, num_x, num_y) == 0){
+        return empty
+    }
     new_path,removed:[dynamic][2]int
     path_cost:[dynamic]f32
     curr:[2]int = start
@@ -208,8 +220,10 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
     curr_dist:f32 = 0
     append(&new_path, start)
     fmt.println("forward")
-    for (n>1) {
+    its:int
+    for (n>0) {
         candidates:[dynamic][2]int
+        defer delete(candidates)
         candidates = valid_steps(world, curr,&new_path, &removed, num_y, num_x)
         if(len(candidates) == 0){//now needs to backtrack
             if(len(new_path) <=1){
@@ -222,7 +236,7 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
             pop(&new_path)
         }else{
             for i in 0..<len(candidates){
-                temp:f32 = (dist(candidates[i],finsih)*0.7)+ (dist(candidates[i], start)*0.3)  + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
+                temp:f32 = (alt_dist(candidates[i],finsih)*1)+(dist(candidates[i], finsih)*0) + (alt_dist2(candidates[i], finsih)*1)   + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
                 append(&f, temp)
             }
             index:int=0
@@ -239,29 +253,56 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
             curr_dist = curr_dist + (auto_cast get_movability(world,curr, num_x, num_y))
             append(&path_cost,curr_dist)
         }
+        its += 1
+        if(its> 10000){
+            return empty
+        }
     }
     clear(&removed)
-    append(&new_path, finsih)
+    
+
+    //append(&new_path, finsih)
+    //return new_path
+    its = 0
+    
     final_path:[dynamic][2]int
     curr = finsih
     curr_dist = 0
     n = dist(curr, start)
     fmt.println("backwards")
+    //fmt.println("curr path before Adjust: ", new_path)
     for n >0{//for back tracking if the candidate list is len > 1 then i I need to add, it to a new removed list, where that new removed list includes those
         append(&final_path, curr)
         candidates:[dynamic][2]int
+        defer delete(candidates)
         candidates = valid_back_steps(world, curr,&new_path,&final_path,&removed, num_y, num_x)
         if(len(candidates) == 0){//now needs to backtrack
-            if(len(final_path) == 0){}
-            fmt.println("pop goes the weasel")
-            pop(&removed)
-            inject_at(&removed,0,curr)
-            curr = final_path[len(final_path)-2]
-            curr_dist = curr_dist - (auto_cast get_movability(world,curr, num_x, num_y))
-            pop(&final_path)
+            if(len(final_path) == 0){return new_path}
+            //fmt.println("pop goes the weasel")
+            //fmt.println("final path: ", final_path)
+            //fmt.println("curr path: ", new_path)
+            //return new_path
+            clear(&removed)
+            append(&removed, curr)
+            curr = new_path[len(new_path)-1]
+            index:int 
+            for i in 0..<len(final_path){
+                if(curr == final_path[i]){
+                    index = i
+                }
+            }
+            remove_range(&final_path, index, len(final_path)-1)
+        }else if (len(candidates) == 1){
+            pop(&new_path)
+            curr = candidates[0]
+            n = dist(curr, start)
+            curr_dist = curr_dist + (auto_cast get_movability(world,curr, num_x, num_y))
+            append(&removed, curr)
+            //fmt.println(new_path)
+            
         }else{
             for i in 0..<len(candidates){
-                temp:f32 = (dist(candidates[i],finsih)*0.3)+ (dist(candidates[i], start)*0.7) + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
+                temp:f32 = (dist(candidates[i],start)*0)+(alt_dist(candidates[i], start)*0) + (alt_dist2(candidates[i], start)*1) + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
                 append(&f, temp)
             }
             index:int=0
@@ -272,18 +313,26 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
             }
             
             curr = candidates[index]
-            ordered_remove(&candidates, index)
-            for i in 0..<len(candidates){
-                append(&removed, candidates[i])
-            }
-            clear(&candidates)
-            clear(&f)
+            append(&removed, curr)
+            //ordered_remove(&candidates, index)
+            //for i in 0..<len(candidates){
+            //   append(&removed, candidates[i])
+            //}
+            
             n = dist(curr, start)
             curr_dist = curr_dist + (auto_cast get_movability(world,curr, num_x, num_y))
+        }
+        clear(&candidates)
+        clear(&f)
+        its += 1
+        if(its> 10000){
+            return empty
         }
     }
     append(&final_path, start)
     return final_path
+    
+
 }
 
 cull_path::proc(world:^[160][160]tile, path:[dynamic][2]int)->([dynamic][2]int){

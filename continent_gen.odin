@@ -3,6 +3,8 @@ import r "core:math/rand"
 import rl "vendor:raylib"
 import "core:fmt"
 import "core:slice"
+//need to rethink this generation method
+//this generation method is great when 
 
 gen_continent_alt::proc(world:^[160][160]tile, land_masses,num_x,num_y:int){
     //this is going to be the game of life approach 
@@ -64,3 +66,5 @@ gen_continent_alt::proc(world:^[160][160]tile, land_masses,num_x,num_y:int){
         world[cord[0]][cord[1]].moveable = 1 
     }
 }
+
+
