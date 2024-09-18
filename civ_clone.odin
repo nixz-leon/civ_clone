@@ -97,8 +97,8 @@ main::proc(){
     //rl.SetWindowMaxSize(2560, 1600)
     tiles:[160][160]tile;
     size:f32 = 40
-    num_x:int= 84 //80
-    num_y:int = 54 //will 
+    num_x:int= 106 //80
+    num_y:int = 66 //will 
     start_x:int=(1500)/2
     start_y:int=(800)/2
     mouse_Pos:[2]f32
@@ -116,13 +116,7 @@ main::proc(){
     rl.UnloadImage(image)
     scale:= (((size*3))-1)/(1025)
 
-    Camera:rl.Camera
-    Camera.position = {0, 100,100}
-    Camera.target = {0,0,0}
-    Camera.up = {0, 1, 0}
-    Camera.fovy = 45
-    Camera.projection = .ORTHOGRAPHIC
-    
+
     gen_tiles(num_x, num_y, &tiles)
     //gen_continent(&tiles, 120, num_x, num_y)
     path:[dynamic][2]int
@@ -132,7 +126,7 @@ main::proc(){
     game_loop: for !rl.WindowShouldClose(){
         rl.BeginDrawing()
         rl.ClearBackground(rl.BLACK)
-        rl.BeginMode3D(Camera)
+
         for i in 0..<num_x{
             for j in 0..<num_y{
                 disp_tile(tiles[i][j], size, warp_range,y_range ,start_x, start_y, curr_x, curr_y, texture)
@@ -145,11 +139,22 @@ main::proc(){
             mouse_Pos[1] = mouse_Pos[1] - auto_cast (start_y - (y_range/2) + curr_y )
             mouse_cord = pix_hex(mouse_Pos,size)
             append(&selected_tiles, mouse_cord)
-            if(len(selected_tiles) == 2){
-                clear(&path)
-                path = path_finder_full(&tiles, selected_tiles[0], selected_tiles[1], num_x, num_y)
-                clear(&selected_tiles)
-            }
+            //if(len(selected_tiles) == 2){
+            //    clear(&path)
+            //    path = path_finder_full(&tiles, selected_tiles[0], selected_tiles[1], num_x, num_y)
+            //    clear(&selected_tiles)
+            //}
+        }
+        if(rl.IsMouseButtonDown(.RIGHT)){
+            mouse_Pos = rl.GetMousePosition()
+            mouse_Pos[0] = mouse_Pos[0] - auto_cast (start_x - (warp_range/2) +curr_x)
+            mouse_Pos[1] = mouse_Pos[1] - auto_cast (start_y - (y_range/2) + curr_y )
+            mouse_cord = pix_hex(mouse_Pos,size)
+            clear(&path)
+            path = path_finder_full(&tiles, selected_tiles[0], mouse_cord, num_x, num_y)
+        }
+        if(rl.IsMouseButtonReleased(.RIGHT)){
+            clear(&selected_tiles)
         }
         if(len(path) >0){
             disp_tiles(&tiles, selected_tiles, size, num_x, warp_range, y_range, start_x, start_y, curr_x, curr_y, rl.PINK, texture)
@@ -158,7 +163,6 @@ main::proc(){
         if(rl.IsKeyPressed(.C)){
             clear(&path)
         }
-        rl.EndMode3D();
 
         if(rl.IsMouseButtonDown(.LEFT)){
             dist = rl.GetMouseDelta()
@@ -223,11 +227,7 @@ main::proc(){
             y_range= auto_cast (size*1.5*auto_cast(num_y))+1 
         }
 
-        for i in 0..<num_x{
-            for j in 0..<num_y{
-                disp_tile(tiles[i][j], size, warp_range,y_range ,start_x, start_y, curr_x, curr_y, texture)
-            }
-        }
+
         
 
         rl.DrawFPS(30,50)
