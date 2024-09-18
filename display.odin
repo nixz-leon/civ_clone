@@ -23,12 +23,14 @@ disp_tile::proc(item:tile, size:f32, warp_range,y_range,start_x,start_y,curr_x,c
     
     disp_x = warp_x(disp_x, warp_range)
 
-    disp_x = disp_x + (auto_cast (start_x - warp_range/2 ))
-    disp_y = disp_y + (auto_cast start_y) 
-    rl.DrawPoly({disp_x,disp_y}, 6, size-1, 30, item.color)
-    rl.DrawPolyLines({disp_x,disp_y}, 6, size, 30, item.border)
+    disp_x = (disp_x + (auto_cast (start_x - warp_range/2 )))/size
+    disp_y = (disp_y + (auto_cast start_y) )/size
+    //rl.DrawPoly({disp_x,disp_y}, 6, size-1, 30, item.color)
+    //rl.DrawPolyLines({disp_x,disp_y}, 6, size, 30, item.border)
+    rl.DrawCylinder({disp_x, -1, disp_y}, 1, 1, 4, 6, item.color)
+    rl.DrawCylinderWires({disp_x, -0.99, disp_y}, 1, 1, 4, 6, item.border)
     //rl.DrawTextureEx(texture, {disp_x, disp_y}, 0, scale, item.color)
-    
+    /* 
     if(DEBUG){
         buf: [4]byte
         str:string =  sc.itoa(buf[:],item.q)
@@ -44,6 +46,7 @@ disp_tile::proc(item:tile, size:f32, warp_range,y_range,start_x,start_y,curr_x,c
         delete(cstr2)
         delete(cstr3)
     }
+    */
     
 }
 
@@ -63,10 +66,13 @@ disp_tiles::proc(world:^[160][160]tile,tiles:[dynamic][2]int, size:f32, num_x, w
         
         disp_x = warp_x(disp_x, warp_range)
 
-        disp_x = disp_x + (auto_cast (start_x - warp_range/2 ))
-        disp_y = disp_y + (auto_cast start_y) 
-        rl.DrawPoly({disp_x,disp_y}, 6, size-1, 30, color)
-        rl.DrawPolyLines({disp_x,disp_y}, 6, size, 30, item.border)
+        disp_x = (disp_x + (auto_cast (start_x - warp_range/2 )))/size
+    disp_y = (disp_y + (auto_cast start_y) )/size
+    //rl.DrawPoly({disp_x,disp_y}, 6, size-1, 30, item.color)
+    //rl.DrawPolyLines({disp_x,disp_y}, 6, size, 30, item.border)
+    rl.DrawCylinder({disp_x, -1, disp_y}, 1, 1, 4, 6, item.color)
+    rl.DrawCylinderWires({disp_x, -0.99, disp_y}, 1, 1, 4, 6, item.border)
+        /*
         if(DEBUG){
             buf: [4]byte
             str:string =  sc.itoa(buf[:],item.q)
@@ -82,5 +88,6 @@ disp_tiles::proc(world:^[160][160]tile,tiles:[dynamic][2]int, size:f32, num_x, w
             delete(cstr2)
             delete(cstr3)
         }
+        */
     }
 }

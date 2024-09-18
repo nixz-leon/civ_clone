@@ -116,7 +116,13 @@ main::proc(){
     rl.UnloadImage(image)
     scale:= (((size*3))-1)/(1025)
 
-
+    Camera:rl.Camera
+    Camera.position = {0, 100,100}
+    Camera.target = {0,0,0}
+    Camera.up = {0, 1, 0}
+    Camera.fovy = 45
+    Camera.projection = .ORTHOGRAPHIC
+    
     gen_tiles(num_x, num_y, &tiles)
     //gen_continent(&tiles, 120, num_x, num_y)
     path:[dynamic][2]int
@@ -126,7 +132,7 @@ main::proc(){
     game_loop: for !rl.WindowShouldClose(){
         rl.BeginDrawing()
         rl.ClearBackground(rl.BLACK)
-
+        rl.BeginMode3D(Camera)
         for i in 0..<num_x{
             for j in 0..<num_y{
                 disp_tile(tiles[i][j], size, warp_range,y_range ,start_x, start_y, curr_x, curr_y, texture)
@@ -152,6 +158,7 @@ main::proc(){
         if(rl.IsKeyPressed(.C)){
             clear(&path)
         }
+        rl.EndMode3D();
 
         if(rl.IsMouseButtonDown(.LEFT)){
             dist = rl.GetMouseDelta()
@@ -216,7 +223,11 @@ main::proc(){
             y_range= auto_cast (size*1.5*auto_cast(num_y))+1 
         }
 
-
+        for i in 0..<num_x{
+            for j in 0..<num_y{
+                disp_tile(tiles[i][j], size, warp_range,y_range ,start_x, start_y, curr_x, curr_y, texture)
+            }
+        }
         
 
         rl.DrawFPS(30,50)
