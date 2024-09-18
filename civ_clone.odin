@@ -94,7 +94,7 @@ main::proc(){
     rl.InitWindow((auto_cast window_width), (auto_cast window_height), "Bloop")
     rl.SetTargetFPS(200)
     rl.SetWindowMinSize(20, 20)
-    rl.SetWindowMaxSize(2560, 1600)
+    //rl.SetWindowMaxSize(2560, 1600)
     tiles:[160][160]tile;
     size:f32 = 40
     num_x:int= 84 //80
