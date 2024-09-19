@@ -10,27 +10,24 @@ import sc "core:strconv"
 
 
 
-disp_tile::proc(item:tile, size:f32, warp_range,y_range,start_x,start_y,curr_x,curr_y:int, texture:rl.Texture2D){
-    //fmt.println(curr_x, start_x, warp_range)
-    scale:= (((size*1.9)))/(1025)
+disp_tile::proc(world:^World_Space,item:^tile){
+    scale:= (((world.size*1.9)))/(1025)
     r:f32 = auto_cast item.r
     q:f32 = auto_cast item.q
-    x_pos:= size * ((Root_Three*q)+((Root_Three*0.5)*r))
-    y_pos:= size * (1.5*r)
-    x_offset:f32 = auto_cast (curr_x) - auto_cast(warp_range)/2
+    x_pos:= world.size * ((Root_Three*q)+((Root_Three*0.5)*r))
+    y_pos:= world.size * (1.5*r)
+    x_offset:f32 = auto_cast (world.curr_x) - auto_cast(world.warp_range)/2
     disp_x:f32= x_pos+x_offset//relative to center
-    disp_y:f32= y_pos+ (auto_cast (curr_y-(y_range/2)))
+    disp_y:f32= y_pos+ (auto_cast (world.curr_y-(world.y_range/2)))
     
-    disp_x = warp_x(disp_x, warp_range)
+    disp_x = warp_x(disp_x, world.warp_range)
 
-    disp_x = (disp_x + (auto_cast (start_x - warp_range/2 )))
-    disp_y = (disp_y + (auto_cast start_y) )
-    rl.DrawPoly({disp_x,disp_y}, 6, size-1, 30, item.color)
-    rl.DrawPolyLines({disp_x,disp_y}, 6, size, 30, item.border)
-    //rl.DrawCylinder({disp_x, -1, disp_y}, 1, 1, 4, 6, item.color)
-    //rl.DrawCylinderWires({disp_x, -0.99, disp_y}, 1, 1, 4, 6, item.border)
-    //rl.DrawTextureEx(texture, {disp_x, disp_y}, 0, scale, item.color)
-    
+    disp_x = (disp_x + (auto_cast (world.start_x - world.warp_range/2 )))
+    disp_y = (disp_y + (auto_cast world.start_y) )
+    rl.DrawPoly({disp_x,disp_y}, 6, world.size-1, 30, item.color)
+    rl.DrawPolyLines({disp_x,disp_y}, 6, world.size, 30, item.border)
+
+
     if(DEBUG){
         buf: [4]byte
         str:string =  sc.itoa(buf[:],item.q)
@@ -50,26 +47,26 @@ disp_tile::proc(item:tile, size:f32, warp_range,y_range,start_x,start_y,curr_x,c
 }
 
 
-disp_tiles::proc(world:^[160][160]tile,tiles:[dynamic][2]int, size:f32, num_x, warp_range,y_range,start_x,start_y,curr_x,curr_y:int, color:rl.Color,texture:rl.Texture2D){
+disp_tiles::proc(world:^World_Space,tiles:[dynamic][2]int, color:rl.Color){
     temp:[2]int
     for i in 0..<len(tiles){
-        temp = hex_to_index_unsafe(warp_hex(tiles[i], num_x))
-        item:tile = world[temp[0]][temp[1]]
-        scale:= (((size*1.9)))/(1025)
+        temp = hex_to_index_unsafe(warp_hex(tiles[i], world.num_x))
+        item:tile = get_tile(world, temp)
+        scale:= (((world.size*1.9)))/(1025)
         r:f32 = auto_cast item.r
         q:f32 = auto_cast item.q
-        x_pos:= size * ((Root_Three*q)+((Root_Three*0.5)*r))
-        y_pos:= size * (1.5*r)
-        x_offset:f32 = auto_cast (curr_x) - auto_cast(warp_range)/2
+        x_pos:= world.size * ((Root_Three*q)+((Root_Three*0.5)*r))
+        y_pos:= world.size * (1.5*r)
+        x_offset:f32 = auto_cast (world.curr_x) - auto_cast(world.warp_range)/2
         disp_x:f32= x_pos+x_offset//relative to center
-        disp_y:f32= y_pos+ (auto_cast (curr_y-(y_range/2)))
+        disp_y:f32= y_pos+ (auto_cast (world.curr_y-(world.y_range/2)))
         
-        disp_x = warp_x(disp_x, warp_range)
+        disp_x = warp_x(disp_x, world.warp_range)
 
-    disp_x = (disp_x + (auto_cast (start_x - warp_range/2 )))
-    disp_y = (disp_y + (auto_cast start_y) )
-    rl.DrawPoly({disp_x,disp_y}, 6, size-1, 30, color)
-    rl.DrawPolyLines({disp_x,disp_y}, 6, size, 30, item.border)
+    disp_x = (disp_x + (auto_cast (world.start_x - world.warp_range/2 )))
+    disp_y = (disp_y + (auto_cast world.start_y) )
+    rl.DrawPoly({disp_x,disp_y}, 6, world.size-1, 30, color)
+    rl.DrawPolyLines({disp_x,disp_y}, 6, world.size, 30, item.border)
     //rl.DrawCylinder({disp_x, -1, disp_y}, 1, 1, 4, 6, item.color)
     //rl.DrawCylinderWires({disp_x, -0.99, disp_y}, 1, 1, 4, 6, item.border)
         

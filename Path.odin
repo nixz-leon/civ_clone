@@ -6,7 +6,7 @@ import m "core:math"
 import l "core:math/linalg"
 
 //need to account of the line drawing around the warping
-
+/*
 dist::proc(qr1,qr2:[2]int)->(f32){ //this one work
     temp:[2]int=qr1-qr2
     temp2:[3]f32
@@ -35,6 +35,12 @@ alt_dist2::proc(qr1,qr2:[2]int) -> (f32){
     temp2[2] = -1*temp2[0] - temp2[1]
     return l.dot(temp2, temp2)
 }
+man_distance::proc(qr1,qr2:[2]int) ->(f32){
+    a:f32 = auto_cast abs(qr1[0]-qr2[0])
+    b:f32 = auto_cast abs(qr1[1]-qr2[1])
+    c:f32 = auto_cast abs((-qr1[0]-qr1[1]) - (-qr2[0]-qr2[1]))
+    return (a + b + c)/2
+}
 
 lerp::proc(a,b:f32,t:f32) ->(f32){
     return cast(f32)(a) + cast(f32)((b-a)) * t
@@ -52,7 +58,7 @@ lerp_axial::proc(qr1,qr2:[2]int, t:f32) -> ([2]int){
     out[1] = round(lerp(auto_cast qr1[1],auto_cast qr2[1], t)+budgey)
     return out   
 }
-
+/*
 axial_line_draw::proc(world:^[160][160]tile,qr1,qr2:[2]int,num_x:int){
     n:f32 = dist(qr1, qr2)
     fmt.println(n)
@@ -68,13 +74,14 @@ axial_line_draw::proc(world:^[160][160]tile,qr1,qr2:[2]int,num_x:int){
         world[cord[0]][cord[1]].color = rl.PINK
     }
 }
+*/
 
-get_movability::proc(world:^[160][160]tile, qr:[2]int,num_x,num_y:int)->(int){
-    cord:[2]int = hex_to_index_unsafe(warp_hex(qr, num_x))
-    if(cord[1]<0 || cord[1] >=num_y){
+get_movability::proc(world:^World_Space, qr:[2]int)->(int){
+    cord:[2]int = hex_to_index_unsafe(warp_hex(qr, world.num_x))
+    if(cord[1]<0 || cord[1] >=world.num_y){
         return -1
     }
-    return world[cord[0]][cord[1]].moveable
+    return get_tile(world, cord).moveable
 }
 
 get_next_straight::proc(qr1, qr2:[2]int)->([2]int){
@@ -136,27 +143,9 @@ is_valid::proc(world:^[160][160]tile, qr:[2]int, num_x,num_y:int)->(bool){\
     for i in 0..<7{
         //valid = !(in_group(path, qr+neighbors[i]))
         valid = valid ||  (get_movability(world, qr+neighbors[i], num_x, num_y) > 0)
-        /*if(get_movability(world, qr+neighbors[i], num_x, num_y) > 0){
-             cord = hex_to_index_unsafe(warp_hex(qr+neighbors[i], num_x))
-             world[cord[0]][cord[1]].color=rl.PURPLE
-        }*/
+        // need to change this on a per unit basis, 
     }
     return valid
-}
-
-valid_steps_debug::proc(world:^[160][160]tile, qr:[2]int, num_y, num_x:int){
-    neighbors:[6][2]int = {{1,0},{1,-1},{0,1},{-1,1},{-1,0},{0,-1}}
-    valid_tiles:[dynamic][2]int
-    for i in 0..<6{
-        if(is_valid(world, qr+neighbors[i], num_x, num_y)){
-            append(&valid_tiles, qr+neighbors[i])
-        }
-    }
-    cord:[2]int
-    for i in 0..<len(valid_tiles){
-        cord = hex_to_index_unsafe(warp_hex(valid_tiles[i], num_x))
-        world[cord[0]][cord[1]].color=rl.PINK
-    }
 }
 
 valid_steps::proc(world:^[160][160]tile, qr:[2]int, path,removed:^[dynamic][2]int,num_y, num_x:int)->([dynamic][2]int){
@@ -180,36 +169,10 @@ valid_back_steps::proc(world:^[160][160]tile, qr:[2]int, path,new_path,removed:^
     return valid_tiles
 }
 
-path_finder_full::proc(world:^[160][160]tile, start, finish:[2]int, num_x,num_y:int) ->([dynamic][2]int){
-    forwards:[dynamic][2]int = path_finder(world, start, finish, num_x, num_y)
-    backwards:[dynamic][2]int = path_finder(world, finish, start, num_x, num_y)
-    path:[dynamic][2]int
-    if(len(forwards) == 0 && len(backwards) >0){
-        fmt.println("backwards 1")
-        path = backwards
-    }else if (len(forwards) >0 && len(backwards) == 0){
-        fmt.println("forwards 1")
-        path = forwards
-    }else{
-        if(len(forwards) > len(backwards)){
-            fmt.println("backwards 2 ")
-            path = backwards
-        }else{
-            fmt.println("forwards 2 ")
-            path = forwards
-        }
-    }
-    curr:[2]int
-    /*for i in 0..< len(path){
-        curr= hex_to_index_unsafe(warp_hex(path[i], num_x))
-        world[curr[0]][curr[1]].color = rl.RED
-    }*/
-    return path
-}
 
-path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) -> ([dynamic][2]int){
+path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int){
     empty:[dynamic][2]int
-    if(get_movability(world, finsih, num_x, num_y) == 0){
+    if(get_movability(world, finsih) == 0){
         return empty
     }
     new_path,removed:[dynamic][2]int
@@ -236,7 +199,7 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
             pop(&new_path)
         }else{
             for i in 0..<len(candidates){
-                temp:f32 = (alt_dist(candidates[i],finsih)*1)+(dist(candidates[i], finsih)*0) + (alt_dist2(candidates[i], finsih)*1)   + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
+                temp:f32 = ((alt_dist(candidates[i],finsih)*1)+(dist(candidates[i], finsih)*1) + (alt_dist2(candidates[i], finsih)*1))/2   + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
                 append(&f, temp)
             }
             index:int=0
@@ -259,12 +222,9 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
         }
     }
     clear(&removed)
-    
-
     //append(&new_path, finsih)
     //return new_path
     its = 0
-    
     final_path:[dynamic][2]int
     curr = finsih
     curr_dist = 0
@@ -313,12 +273,7 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
             }
             
             curr = candidates[index]
-            append(&removed, curr)
-            //ordered_remove(&candidates, index)
-            //for i in 0..<len(candidates){
-            //   append(&removed, candidates[i])
-            //}
-            
+            append(&removed, curr)            
             n = dist(curr, start)
             curr_dist = curr_dist + (auto_cast get_movability(world,curr, num_x, num_y))
         }
@@ -338,3 +293,4 @@ path_finder::proc(world:^[160][160]tile, start, finsih:[2]int, num_x,num_y:int) 
 cull_path::proc(world:^[160][160]tile, path:[dynamic][2]int)->([dynamic][2]int){
     return path 
 }
+*/

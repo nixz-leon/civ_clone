@@ -61,32 +61,7 @@ warp_hex::proc(hex:[2]int, num_x:int) -> (nhex:[2]int){
     return index_to_hex(index)    
 }
 
-round_qr::proc(qrf:[2]f32) -> ([2]int){
-    qri:[2]int
-    if(qrf[0] <0){
-        qri= cast(int) (qrf[0] - 0.5)
-    }else{
-        qri= cast(int) (qrf[0] + 0.5)
-    }
 
-    if(qrf[1] <0){
-        qri= cast(int) (qrf[1] - 0.5)
-    }else{
-        qri= cast(int) (qrf[1] + 0.5)
-    }
-    return qri
+pix_index::proc(a:[2]int,num_x:int)->([2]int){
+    return hex_to_index_unsafe(warp_hex(a, num_x))
 }
-round::proc(a:f32) -> (int){
-    if(a < 0){
-        return auto_cast (a - 0.5)
-    }else{
-        return auto_cast (a + 0.5)
-    }
-}
-
-/*
-hex_round::proc(hex:[3]f32) -> ([3]int){
-
-
-}
-*/
