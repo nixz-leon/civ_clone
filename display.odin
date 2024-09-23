@@ -43,8 +43,8 @@ disp_tile::proc(world:^World_Space,item:^tile){
         delete(cstr2)
         delete(cstr3)
     }
-    
 }
+
 
 
 disp_tiles::proc(world:^World_Space,tiles:[dynamic][2]int, color:rl.Color){

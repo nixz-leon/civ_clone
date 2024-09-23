@@ -1,5 +1,8 @@
 package civ_clone
 import rl "vendor:raylib"
+import "core:encoding/cbor"
+import "base:intrinsics"
+import "core:reflect"
 
 Root_Three:: 1.7320508075688772935274463415059
 
@@ -44,7 +47,8 @@ tile::struct{
     q,r:int,
     color:rl.Color,
     border:rl.Color,
-    moveable:int 
+    moveable:int,
+    terrain:terrain 
 }
 tile_group::struct{
     indicies:[dynamic][2]int   
@@ -65,12 +69,13 @@ features:[5][6]f16={
     {0.0  ,0.0  ,0.0  ,0.0  ,0.0  ,0.0} //this is water, its just water, nothing to see yet 
 }
 
+neighbors:[6][2]int = {{1,0},{1,-1},{0,1},{-1,1},{-1,0},{0,-1}}
 
-
+//need to add the cbor tags for save file stuff
 World_Space::struct{
-    world:[dynamic]tile,//done
-    num_x,num_y:int,//done
-    window_height,window_width:int,//done
+    world:[dynamic]tile,
+    num_x,num_y:int,
+    window_height,window_width:int,
     warp_range,y_range:int,
     start_x,start_y:int,
     curr_x,curr_y:int,
@@ -88,10 +93,20 @@ round_qr::proc(a:[2]f32) ->([2]int){
 }
 
 get_tile::proc(space:^World_Space, qr:[2]int)->(tile){
+    qr:=warp_hex(qr, space.num_x)
     return space.world[qr[0] + qr[1]*space.num_x]
 }
 set_tile_color_mouse::proc(space:^World_Space, qr:[2]int,color:rl.Color){
     space.world[qr[0] + qr[1]*space.num_x].color = color
+}
+set_tile_color::proc(space:^World_Space, qr:[2]int,color:rl.Color){
+    temp:[2]int = hex_to_index(warp_hex(qr, space.num_x), space.num_x, space.num_y)
+    space.world[temp[0] + temp[1]*space.num_x].color = color
+}
+set_tile_terrain_s::proc(space:^World_Space, qr:[2]int,moveability:int,type:terrain){
+    temp:[2]int = hex_to_index_unsafe(warp_hex(qr, space.num_x))
+    space.world[temp[0] + temp[1]*space.num_x].moveable = moveability
+    space.world[temp[0] + temp[1]*space.num_x].terrain = type
 }
 get_tile_mouse::proc(space:^World_Space, qr:[2]int)->(tile){
     return space.world[qr[0] + qr[1]*space.num_x]
@@ -162,4 +177,15 @@ in_group::proc(tiles:^[dynamic][2]int, qr:[2]int) -> (bool){
         }
     }
     return in_c
+}
+
+get_neighbors::proc(world:^World_Space, qr:[2]int)->([dynamic][2]int){
+    out:[dynamic][2]int
+    next: for shift in neighbors{
+        temp:[2]int
+        temp = qr + shift
+        if(temp[1] < 0 || temp[1]>=world.num_y){break next}
+        append(&out, warp_hex(temp, world.num_x)) 
+    }
+    return out
 }
