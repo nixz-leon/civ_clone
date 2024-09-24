@@ -6,6 +6,16 @@ import "core:reflect"
 
 Root_Three:: 1.7320508075688772935274463415059
 
+//need to add the cbor tags for save file stuff
+World_Space::struct{
+    world:[dynamic]tile,
+    num_x,num_y:int,
+    window_height,window_width:int,
+    warp_range,y_range:int,
+    start_x,start_y:int,
+    curr_x,curr_y:int,
+    size:f32
+}
 
 info::struct{
     name:string,
@@ -71,16 +81,7 @@ features:[5][6]f16={
 
 neighbors:[6][2]int = {{1,0},{1,-1},{0,1},{-1,1},{-1,0},{0,-1}}
 
-//need to add the cbor tags for save file stuff
-World_Space::struct{
-    world:[dynamic]tile,
-    num_x,num_y:int,
-    window_height,window_width:int,
-    warp_range,y_range:int,
-    start_x,start_y:int,
-    curr_x,curr_y:int,
-    size:f32
-}
+
 round::proc(a:f32)->(int){
     if (a < 0){
         return cast(int)(a-0.5)
