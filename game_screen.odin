@@ -60,8 +60,9 @@ game_screen::proc(world:^World_Space, state:^game_state){
                 world.world[i].color = rl.BLUE
                 world.world[i].moveable =0
             }
-            gen_continent(world, 4)
+            //gen_continent(world, 4)
             //gen_land_mass(&world, {104, 47}, 630)
+            gen_land_mass(world, {53,33}, 200)
         }
         
         if(rl.IsKeyPressed(.UP)){

@@ -163,6 +163,7 @@ gen_land_mass::proc(world:^World_Space, start:[2]int, walks:int, existing_land:.
         tile:[2]int = expandable[index]
         candidate=get_neighbors(world, tile)
         exclude_from_groups(&candidate, land_mass,expandable)
+        exclude_from_groups(&candidate, ..existing_land[:])
         append_elems(&expandable, ..candidate[:])
         exclude_tile_from_group(&expandable, tile)
         append(&land_mass, tile)

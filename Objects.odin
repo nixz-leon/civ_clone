@@ -1,20 +1,27 @@
 package civ_clone
 import rl "vendor:raylib"
+import "core:fmt"
 import "core:encoding/cbor"
 import "base:intrinsics"
 import "core:reflect"
+import "core:io"
 
 Root_Three:: 1.7320508075688772935274463415059
 
 //need to add the cbor tags for save file stuff
 World_Space::struct{
-    world:[dynamic]tile,
-    num_x,num_y:int,
-    window_height,window_width:int,
-    warp_range,y_range:int,
-    start_x,start_y:int,
-    curr_x,curr_y:int,
-    size:f32
+    num_x:int,
+    num_y:int,
+    window_height:int,
+    window_width:int,
+    warp_range:int,
+    y_range:int,
+    start_x:int,
+    start_y:int,
+    curr_x:int,
+    curr_y:int,
+    size:f32,
+    world:[dynamic]tile `cbor:"toarray"`
 }
 
 info::struct{
@@ -54,11 +61,11 @@ unit::struct{
 }
 
 tile::struct{
-    q,r:int,
-    color:rl.Color,
-    border:rl.Color,
-    moveable:int,
-    terrain:terrain 
+    q,r:int`cbor_tag:"raw"`,
+    color:rl.Color`cbor_tag:"raw"`,
+    border:rl.Color`cbor_tag:"raw"`,
+    moveable:int`cbor_tag:"raw"`,
+    terrain:terrain`cbor_tag:"raw"`
 }
 tile_group::struct{
     indicies:[dynamic][2]int   

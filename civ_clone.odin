@@ -25,6 +25,7 @@ main::proc(){
     window_height:int=800
     rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT})
     rl.InitWindow((auto_cast window_width), (auto_cast window_height), "Bloop")
+    rl.SetWindowState({.WINDOW_MAXIMIZED})
     rl.SetTargetFPS(200)
     rl.SetWindowMinSize(20, 20)
 
@@ -52,15 +53,19 @@ main::proc(){
     game_loop: for (!rl.WindowShouldClose()) {
         fmt.println(state)
         if(state == .start_menu){
+            fmt.println(world)
             start_screen(&world, &state)
+            //fmt.println(world)
         }else if(state == .game_loop){
+            fmt.println("made it here")
             game_screen(&world, &state)
         }else if (state == .pause_menu){
             pause_screen(&world, &state)
         }else if(state == .close){
             break
         }
-        rl.WaitTime(0.05)
+       
+        fmt.println("hoop")
     }
     rl.CloseWindow()
 }

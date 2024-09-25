@@ -91,7 +91,8 @@ disp_tiles::proc(world:^World_Space,tiles:[dynamic][2]int, color:rl.Color){
 
 
 
-disp_button::proc(button:Button){
-    rl.DrawRectangle(button.pos[0], button.pos[1], button.size[0], button.size[1], button.color)
-    rl.DrawText(button.text, button.text_pos[0], button.text_pos[1], button.text_size, rl.BLACK)
+disp_button::proc(b:Button){
+    //rl.DrawRectangle(button.pos[0], button.pos[1], button.size[0], button.size[1], button.color)
+    //rl.DrawText(button.text, button.text_pos[0], button.text_pos[1], button.text_size, rl.BLACK)
+    rl.DrawTexture(b.texture, b.pos[0], b.pos[1], rl.WHITE)
 }
