@@ -1,5 +1,6 @@
 package civ_clone
 import rl "vendor:raylib"
+import "core:fmt"
 
 
 
@@ -12,7 +13,8 @@ game_screen::proc(world:^World_Space, state:^game_state){
     
     path:[dynamic][2]int
     path2:[dynamic][2]int
-
+    selected_tiles:[dynamic][2]int
+    selected_tile:[2]int
     for !exit{
         rl.BeginDrawing()
         rl.ClearBackground(rl.BLACK)
@@ -23,26 +25,29 @@ game_screen::proc(world:^World_Space, state:^game_state){
 
         mouse_cord = get_qr_mouse(world)
         
-    /*
+    
         if(rl.IsMouseButtonPressed(.RIGHT)){
-            append(&selected_tiles, mouse_cord)
-        }
-        if(rl.IsMouseButtonDown(.RIGHT)){
+            //append(&selected_tiles, mouse_cord)
+            selected_tile = mouse_cord
+        }else if(rl.IsMouseButtonDown(.RIGHT)){
             clear(&path)
-            path = path_finder(&tiles, selected_tiles[0], mouse_cord, num_x, num_y)
-        }
+            path = path_finder(world, selected_tile, mouse_cord)
+        }/*
         if(rl.IsMouseButtonReleased(.RIGHT)){
             clear(&path)
-            path = path_finder(&tiles, selected_tiles[0], mouse_cord, num_x, num_y)
+            path = path_finder(world, selected_tiles[0], mouse_cord)
             clear(&selected_tiles)
-        }
+        }*/
+        //fmt.println(selected_tiles)
+        //fmt.println(path)
+
         if(len(path) >0){
             //disp_tiles(&tiles, selected_tiles, size, num_x, warp_range, y_range, start_x, start_y, curr_x, curr_y, rl.PINK, texture)
-            disp_tiles(&world, path, rl.PINK)
+            disp_tiles(world, path, rl.PINK)
         }
         if(rl.IsKeyPressed(.C)){
             clear(&path)
-        }*/
+        }
         if(rl.IsMouseButtonPressed(.LEFT)){
             set_tile_color_mouse(world, mouse_cord, rl.RED)            
         }
@@ -60,9 +65,9 @@ game_screen::proc(world:^World_Space, state:^game_state){
                 world.world[i].color = rl.BLUE
                 world.world[i].moveable =0
             }
-            //gen_continent(world, 4)
+            gen_continent(world, 4)
             //gen_land_mass(&world, {104, 47}, 630)
-            gen_land_mass(world, {53,33}, 200)
+            //gen_land_mass(world, {53,33}, 200)
         }
         
         if(rl.IsKeyPressed(.UP)){

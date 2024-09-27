@@ -10,7 +10,7 @@ import sc "core:strconv"
 
 
 
-DEBUG::false
+DEBUG::true
 game_state::enum{
     start_menu,
     pause_menu,

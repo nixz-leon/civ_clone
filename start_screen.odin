@@ -83,16 +83,15 @@ start_screen::proc(world:^World_Space,state:^game_state){
         }
 
         if(curr_act == .new_game){//should bring to another subMenu this can probably be done relatively seemlessly by loading in via cbor, different menus
-            init_World_space(world, 25, 25)
+            init_World_space(world, 106, 66)
             //gen_continent(world, 5)
-            //gen_land_mass(world, {53,33}, 20)
+            gen_land_mass(world, {53,33}, 20)
             exit=true
             state^=.game_loop
         }else if(curr_act == .resume_game){
             exit=true
             state^=.game_loop
             load_game(world, "test.sav")
-            fmt.println("here maybe")
         }
         if(rl.WindowShouldClose()){
             exit = true
@@ -101,7 +100,5 @@ start_screen::proc(world:^World_Space,state:^game_state){
 
         rl.EndDrawing()
     }
-    fmt.println("state: ",state^)
-    fmt.println("good exit")
-    
+   
 }

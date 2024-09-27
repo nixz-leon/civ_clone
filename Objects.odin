@@ -21,7 +21,7 @@ World_Space::struct{
     curr_x:int,
     curr_y:int,
     size:f32,
-    world:[dynamic]tile `cbor:"toarray"`
+    world:[dynamic]tile
 }
 
 info::struct{
@@ -61,15 +61,13 @@ unit::struct{
 }
 
 tile::struct{
-    q,r:int`cbor_tag:"raw"`,
-    color:rl.Color`cbor_tag:"raw"`,
-    border:rl.Color`cbor_tag:"raw"`,
-    moveable:int`cbor_tag:"raw"`,
-    terrain:terrain`cbor_tag:"raw"`
+    q,r:int,
+    color:rl.Color,
+    border:rl.Color,
+    moveable:int,
+    terrain:terrain
 }
-tile_group::struct{
-    indicies:[dynamic][2]int   
-}
+
 
 names:[5]string={
     "Stone",
@@ -105,6 +103,7 @@ get_tile::proc(space:^World_Space, qr:[2]int)->(tile){
     return space.world[qr[0] + qr[1]*space.num_x]
 }
 set_tile_color_mouse::proc(space:^World_Space, qr:[2]int,color:rl.Color){
+    qr:=hex_to_index(qr, space.num_x, space.num_y)
     space.world[qr[0] + qr[1]*space.num_x].color = color
 }
 set_tile_color::proc(space:^World_Space, qr:[2]int,color:rl.Color){
@@ -122,8 +121,8 @@ get_tile_mouse::proc(space:^World_Space, qr:[2]int)->(tile){
 get_qr_mouse::proc(space:^World_Space)->([2]int){
     mouse_Pos:[2]f32 = rl.GetMousePosition()
     mouse_Pos[0] -= auto_cast (space.start_x - (space.warp_range/2)+space.curr_x) 
-    mouse_Pos[1] = mouse_Pos[1] - auto_cast (space.start_y - (space.y_range/2) + space.curr_y )
-    return pix_index((pix_hex(mouse_Pos, space.size)),space.num_x)
+    mouse_Pos[1] -= auto_cast (space.start_y - (space.y_range/2) + space.curr_y )
+    return (pix_hex(mouse_Pos, space.size))
 
 }
 

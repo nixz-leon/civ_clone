@@ -51,7 +51,7 @@ pause_screen::proc(world:^World_Space, state:^game_state){
             clear(&world.world)
         }else if(curr_act == .save_game){
             curr_act = .nothing
-            save_game(world)
+            save_game(world, "test.sav")
             
         }
 

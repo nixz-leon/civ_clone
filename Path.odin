@@ -5,8 +5,7 @@ import rl "vendor:raylib"
 import m "core:math"
 import l "core:math/linalg"
 
-//need to account of the line drawing around the warping
-/*
+
 dist::proc(qr1,qr2:[2]int)->(f32){ //this one work
     temp:[2]int=qr1-qr2
     temp2:[3]f32
@@ -132,8 +131,8 @@ in the no move list. the other items that are added are the prior mentioned next
 
 */
 
-is_valid::proc(world:^[160][160]tile, qr:[2]int, num_x,num_y:int)->(bool){\
-    if(get_movability(world, qr, num_x, num_y) == 0){
+is_valid::proc(world:^World_Space, qr:[2]int)->(bool){\
+    if(get_movability(world, qr) == 0){
         return false;
     }
     neighbors:[7][2]int = {{1,0},{1,-1},{0,1},{-1,1},{-1,0},{0,-1},{0,0}};
@@ -142,23 +141,23 @@ is_valid::proc(world:^[160][160]tile, qr:[2]int, num_x,num_y:int)->(bool){\
     cord:[2]int
     for i in 0..<7{
         //valid = !(in_group(path, qr+neighbors[i]))
-        valid = valid ||  (get_movability(world, qr+neighbors[i], num_x, num_y) > 0)
+        valid = valid ||  (get_movability(world, qr+neighbors[i]) > 0)
         // need to change this on a per unit basis, 
     }
     return valid
 }
 
-valid_steps::proc(world:^[160][160]tile, qr:[2]int, path,removed:^[dynamic][2]int,num_y, num_x:int)->([dynamic][2]int){
+valid_steps::proc(world:^World_Space, qr:[2]int, path,removed:^[dynamic][2]int)->([dynamic][2]int){
     neighbors:[6][2]int = {{1,0},{1,-1},{0,1},{-1,1},{-1,0},{0,-1}}
     valid_tiles:[dynamic][2]int
     for i in 0..<6{
-        if(is_valid(world, qr+neighbors[i], num_x, num_y) && !in_group(path, qr+neighbors[i]) && !in_group(removed, qr+neighbors[i])){
+        if(is_valid(world, qr+neighbors[i]) && !in_group(path, qr+neighbors[i]) && !in_group(removed, qr+neighbors[i])){
             append(&valid_tiles, qr+neighbors[i])
         }
     }
     return valid_tiles
 }
-valid_back_steps::proc(world:^[160][160]tile, qr:[2]int, path,new_path,removed:^[dynamic][2]int,num_y, num_x:int)->([dynamic][2]int){
+valid_back_steps::proc(world:^World_Space, qr:[2]int, path,new_path,removed:^[dynamic][2]int)->([dynamic][2]int){
     neighbors:[6][2]int = {{1,0},{1,-1},{0,1},{-1,1},{-1,0},{0,-1}}
     valid_tiles:[dynamic][2]int
     for i in 0..<6{
@@ -171,8 +170,12 @@ valid_back_steps::proc(world:^[160][160]tile, qr:[2]int, path,new_path,removed:^
 
 
 path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int){
+    fmt.println("started path finding")
     empty:[dynamic][2]int
     if(get_movability(world, finsih) == 0){
+        fmt.println("empty 1")
+        fmt.println(start)
+        fmt.println(finsih)
         return empty
     }
     new_path,removed:[dynamic][2]int
@@ -187,7 +190,7 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
     for (n>0) {
         candidates:[dynamic][2]int
         defer delete(candidates)
-        candidates = valid_steps(world, curr,&new_path, &removed, num_y, num_x)
+        candidates = valid_steps(world, curr,&new_path, &removed)
         if(len(candidates) == 0){//now needs to backtrack
             if(len(new_path) <=1){
                 fmt.println("no path")
@@ -195,11 +198,11 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
             }
             append(&removed,curr)
             curr = new_path[len(new_path)-2]
-            curr_dist = curr_dist - (auto_cast get_movability(world,curr, num_x, num_y))
+            curr_dist = curr_dist - (auto_cast get_movability(world,curr))
             pop(&new_path)
         }else{
             for i in 0..<len(candidates){
-                temp:f32 = ((alt_dist(candidates[i],finsih)*1)+(dist(candidates[i], finsih)*1) + (alt_dist2(candidates[i], finsih)*1))/2   + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
+                temp:f32 = ((alt_dist(candidates[i],finsih)*1)+(dist(candidates[i], finsih)*1) + (alt_dist2(candidates[i], finsih)*1))/2   + auto_cast get_movability(world,candidates[i]) + (curr_dist)
                 append(&f, temp)
             }
             index:int=0
@@ -213,11 +216,12 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
             clear(&f)
             append(&new_path, curr)
             n = dist(curr, finsih)
-            curr_dist = curr_dist + (auto_cast get_movability(world,curr, num_x, num_y))
+            curr_dist = curr_dist + (auto_cast get_movability(world,curr))
             append(&path_cost,curr_dist)
         }
         its += 1
         if(its> 10000){
+            fmt.println("empty 2")
             return empty
         }
     }
@@ -235,7 +239,7 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
         append(&final_path, curr)
         candidates:[dynamic][2]int
         defer delete(candidates)
-        candidates = valid_back_steps(world, curr,&new_path,&final_path,&removed, num_y, num_x)
+        candidates = valid_back_steps(world, curr,&new_path,&final_path,&removed)
         if(len(candidates) == 0){//now needs to backtrack
             if(len(final_path) == 0){return new_path}
             //fmt.println("pop goes the weasel")
@@ -256,13 +260,13 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
             pop(&new_path)
             curr = candidates[0]
             n = dist(curr, start)
-            curr_dist = curr_dist + (auto_cast get_movability(world,curr, num_x, num_y))
+            curr_dist = curr_dist + (auto_cast get_movability(world,curr))
             append(&removed, curr)
             //fmt.println(new_path)
             
         }else{
             for i in 0..<len(candidates){
-                temp:f32 = (dist(candidates[i],start)*0)+(alt_dist(candidates[i], start)*0) + (alt_dist2(candidates[i], start)*1) + auto_cast get_movability(world,candidates[i], num_x, num_y) + (curr_dist)
+                temp:f32 = (dist(candidates[i],start)*0)+(alt_dist(candidates[i], start)*0) + (alt_dist2(candidates[i], start)*1) + auto_cast get_movability(world,candidates[i]) + (curr_dist)
                 append(&f, temp)
             }
             index:int=0
@@ -275,22 +279,21 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
             curr = candidates[index]
             append(&removed, curr)            
             n = dist(curr, start)
-            curr_dist = curr_dist + (auto_cast get_movability(world,curr, num_x, num_y))
+            curr_dist = curr_dist + (auto_cast get_movability(world,curr))
         }
         clear(&candidates)
         clear(&f)
         its += 1
         if(its> 10000){
+            fmt.println("empty 3")
             return empty
         }
     }
     append(&final_path, start)
+    fmt.println(final_path)
     return final_path
     
 
 }
 
-cull_path::proc(world:^[160][160]tile, path:[dynamic][2]int)->([dynamic][2]int){
-    return path 
-}
-*/
+
