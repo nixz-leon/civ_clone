@@ -50,8 +50,8 @@ disp_tile::proc(world:^World_Space,item:^tile){
 disp_tiles::proc(world:^World_Space,tiles:[dynamic][2]int, color:rl.Color){
     temp:[2]int
     for i in 0..<len(tiles){
-        temp = hex_to_index_unsafe(warp_hex(tiles[i], world.num_x))
-        item:tile = get_tile(world, temp)
+        temp = warp_hex(tiles[i], world.num_x)
+        item:tile = get_tile_qr(world, temp)
         scale:= (((world.size*1.9)))/(1025)
         r:f32 = auto_cast item.r
         q:f32 = auto_cast item.q

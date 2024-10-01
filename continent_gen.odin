@@ -96,9 +96,7 @@ clean_up::proc(world:^World_Space,group,land_mass:^[dynamic][2]int)->([dynamic][
 
 gen_continent::proc(world:^World_Space,  num_conts:int){
     conts:[dynamic][dynamic][2]int
-    //defer delete(conts[:])
     num_walks:int= auto_cast (f32(world.num_x * world.num_y)*0.02)
-    //num_walks:int = 20
     qr:[2]int
     cord:[2]int
     start:[2]int
@@ -108,11 +106,8 @@ gen_continent::proc(world:^World_Space,  num_conts:int){
         start = {r.int_max(world.num_x),r.int_max((world.num_y/2))+(world.num_y/4)}
         qr = warp_hex(index_to_hex(start), world.num_x)
         fmt.println("start loc: ", qr)
-        init = gen_land_mass(world, start,num_walks, ..(conts[:]))
-        fmt.println("post_gen")
-        //append(&conts, init)   
+        init = gen_land_mass(world, start,num_walks, ..(conts[:]))   
     }
-    fmt.println("out of loop")   
 }
 
 
@@ -177,73 +172,19 @@ gen_land_mass::proc(world:^World_Space, start:[2]int, walks:int, existing_land:.
         exclude_from_groups(&candidate, ..existing_land[:])
         append_elems(&expandable, ..candidate[:])
     }
-
     for a in land_mass{
         set_tile_color(world, a, rl.LIME)
         set_tile_terrain_s(world, a, 2, .plains)
     }
     for a in expandable{
-            b:= hex_to_index_unsafe(warp_hex(a, world.num_x))
-            if(get_tile(world, b).moveable < 1){
+        if(get_movability(world, a) < 2){
             set_tile_color(world, a, rl.SKYBLUE)
             set_tile_terrain_s(world, a, 1, .coastal)
-        } 
+        }
     }
+    fmt.println(land_mass)
+    fmt.println(expandable)
+
     return land_mass
 }
 
-/*
-gen_land_mass::proc(world:^World_Space, start:[2]int, walks:int, existing_land:..[dynamic][2]int)->([dynamic][2]int){
-    expandable:[dynamic][2]int
-    defer delete(expandable)
-    land_mass:[dynamic][2]int
-    candidates:[dynamic][2]int
-    defer delete(candidates)
-    curr:[2]int
-    walked:int=0
-    append(&expandable, start)
-    for walked<walks{
-        clear(&candidates)
-        index:int = r.int_max(len(expandable))
-        curr= expandable[index]
-        append(&land_mass, curr)
-        candidates = get_expandable(world, &land_mass,&expandable,curr, ..existing_land)
-        append_elems(&expandable, ..candidates[:])
-        unordered_remove(&expandable, index)
-        walked += 1
-    }
-    remove_dups(&land_mass)
-    for a in land_mass{
-        set_tile_color(world, a, rl.LIME)
-        set_tile_terrain_s(world, a, 2, .plains)
-    }
-
-    /*
-    ind:int=len(expandable)
-    for i in 0..<1{
-    temp:[dynamic][2]int
-    for tile in expandable{
-        clear(&candidates)
-        candidates = get_expandable_coast(world, &land_mass, &expandable, &temp,tile, ..existing_land)
-        append_elems(&temp, ..candidates[:])
-    }
-    append_elems(&expandable, ..temp[:])
-    }*/
-
-    //need to add an exapand coast function before clean up, so coast/shallow water tiles remain, and cleaning up the map 
-    fmt.println(len(expandable))
-    fmt.println(len(expandable))
-
-    for a in expandable{
-        b:= warp_hex(a, world.num_x)
-            if(get_tile(world, b).moveable < 1){
-            set_tile_color(world, a, rl.SKYBLUE)
-            set_tile_terrain_s(world, a, 2, .shallow_water)
-        } 
-    }
-    set_tile_color(world, start, rl.GOLD)
-    fmt.println(len(expandable))
-    fmt.println(len(land_mass))
-    append(&land_mass, ..expandable[:])
-    return land_mass
-}*/

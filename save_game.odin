@@ -29,9 +29,3 @@ load_game::proc(world:^World_Space, file_name:string){
     serializer_init_reader(&s, data)
     serialize(&s, world) 
 }
-
-
-
-
-
-

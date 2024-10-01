@@ -98,10 +98,16 @@ round_qr::proc(a:[2]f32) ->([2]int){
     return {round(a[0]),round(a[1])}
 }
 
-get_tile::proc(space:^World_Space, qr:[2]int)->(tile){
-    qr:=warp_hex(qr, space.num_x)
+get_tile_qr::proc(space:^World_Space, qr:[2]int)->(tile){
+    qr:=hex_to_index_unsafe(warp_hex(qr, space.num_x))
     return space.world[qr[0] + qr[1]*space.num_x]
 }
+get_tile_index::proc(space:^World_Space, qr:[2]int)->(tile){
+    return space.world[qr[0] + qr[1]*space.num_x]
+}
+
+
+
 set_tile_color_mouse::proc(space:^World_Space, qr:[2]int,color:rl.Color){
     qr:=hex_to_index(qr, space.num_x, space.num_y)
     space.world[qr[0] + qr[1]*space.num_x].color = color
@@ -116,6 +122,7 @@ set_tile_terrain_s::proc(space:^World_Space, qr:[2]int,moveability:int,type:terr
     space.world[temp[0] + temp[1]*space.num_x].terrain = type
 }
 get_tile_mouse::proc(space:^World_Space, qr:[2]int)->(tile){
+    qr:=hex_to_index(qr, space.num_x, space.num_y)
     return space.world[qr[0] + qr[1]*space.num_x]
 }
 get_qr_mouse::proc(space:^World_Space)->([2]int){
@@ -184,6 +191,14 @@ in_group::proc(tiles:^[dynamic][2]int, qr:[2]int) -> (bool){
         }
     }
     return in_c
+}
+
+in_groups::proc(qr:[2]int, groups:..[dynamic][2]int) -> (bool){
+    in_cs:bool = false
+    for &group in groups{
+        in_cs = in_cs||in_group(&group, qr)
+    }
+    return in_cs
 }
 
 get_neighbors::proc(world:^World_Space, qr:[2]int)->([dynamic][2]int){

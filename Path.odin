@@ -80,7 +80,7 @@ get_movability::proc(world:^World_Space, qr:[2]int)->(int){
     if(cord[1]<0 || cord[1] >=world.num_y){
         return -1
     }
-    return get_tile(world, cord).moveable
+    return get_tile_index(world, cord).moveable
 }
 
 get_next_straight::proc(qr1, qr2:[2]int)->([2]int){
@@ -172,6 +172,8 @@ valid_back_steps::proc(world:^World_Space, qr:[2]int, path,new_path,removed:^[dy
 path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int){
     fmt.println("started path finding")
     empty:[dynamic][2]int
+    fmt.println(start)
+    fmt.println(finsih)
     if(get_movability(world, finsih) == 0){
         fmt.println("empty 1")
         fmt.println(start)
