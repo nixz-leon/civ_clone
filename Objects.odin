@@ -8,7 +8,7 @@ import "core:io"
 
 Root_Three:: 1.7320508075688772935274463415059
 
-//need to add the cbor tags for save file stuff
+
 World_Space::struct{
     num_x:int,
     num_y:int,
@@ -37,12 +37,13 @@ resources::struct{
     water:info
 }
 sail::enum{
-    no = 0,
+    no = 2,
     shallow = 1,
-    deep = 1,
+    deep = 0,
 }
 
 terrain::enum{
+    unkonwn = 9,
     mountain = 8,
     jungle = 7,
     hill = 6,
@@ -53,12 +54,7 @@ terrain::enum{
     shallow_water = 1,
     deep_water = 0,
 }
-unit::struct{
-    can_walk:bool,
-    can_swim:sail,
-    health:int,
-    move_dist:int
-}
+
 
 tile::struct{
     q,r:int,

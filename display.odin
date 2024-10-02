@@ -94,3 +94,10 @@ disp_tiles::proc(world:^World_Space,tiles:[dynamic][2]int, color:rl.Color){
 disp_button::proc(b:Button){
     rl.DrawTexture(b.texture, b.pos[0], b.pos[1], rl.WHITE)
 }
+
+
+//For the display section I want to work on getting the orthographic 3d perspective to work, this will involve an extensive
+//rework for the world_state struct mostly likely to account for the camera. and the like
+//also proper bounds for scrolling would be cool, and it would start to look nice ish
+//I don't know if this is something that could be set in settings, like a button to go from 3d mode to 2d mode
+//even then for this I would need to get a tile texture to work properly, this might be very hard to do

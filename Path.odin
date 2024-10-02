@@ -169,6 +169,9 @@ valid_back_steps::proc(world:^World_Space, qr:[2]int, path,new_path,removed:^[dy
 }
 
 
+//TODO Rewrite the path finder to fit a unit and work on path optimization
+
+
 path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int){
     fmt.println("started path finding")
     empty:[dynamic][2]int
@@ -204,7 +207,7 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
             pop(&new_path)
         }else{
             for i in 0..<len(candidates){
-                temp:f32 = ((alt_dist(candidates[i],finsih)*1)+(dist(candidates[i], finsih)*1) + (alt_dist2(candidates[i], finsih)*1))/2   + auto_cast get_movability(world,candidates[i]) + (curr_dist)
+                temp:f32 = ((alt_dist(candidates[i],finsih)*1)+(dist(candidates[i], finsih)*1) + (alt_dist2(candidates[i], finsih)*1))/2   + 5*auto_cast get_movability(world,candidates[i]) + (curr_dist)
                 append(&f, temp)
             }
             index:int=0
@@ -268,7 +271,7 @@ path_finder::proc(world:^World_Space, start, finsih:[2]int) -> ([dynamic][2]int)
             
         }else{
             for i in 0..<len(candidates){
-                temp:f32 = (dist(candidates[i],start)*0)+(alt_dist(candidates[i], start)*0) + (alt_dist2(candidates[i], start)*1) + auto_cast get_movability(world,candidates[i]) + (curr_dist)
+                temp:f32 = (dist(candidates[i],start)*0)+(alt_dist(candidates[i], start)*0) + (alt_dist2(candidates[i], start)*1) + 5*auto_cast get_movability(world,candidates[i]) 
                 append(&f, temp)
             }
             index:int=0
