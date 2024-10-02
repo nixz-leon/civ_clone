@@ -28,12 +28,8 @@ game_screen::proc(world:^World_Space, state:^game_state){
         for i in 0..<(world.num_x*world.num_y){
             disp_tile(world, &world.world[i],texture)
         }
-
         mouse_cord = get_qr_mouse(world)
-        
-    
         if(rl.IsMouseButtonPressed(.RIGHT)){
-            //append(&selected_tiles, mouse_cord)
             selected_tile = mouse_cord
         }else if(rl.IsMouseButtonDown(.RIGHT)){
             clear(&path)
@@ -41,8 +37,7 @@ game_screen::proc(world:^World_Space, state:^game_state){
         }
         if(rl.IsMouseButtonReleased(.RIGHT)){
             clear(&path)
-            path = path_finder(world, selected_tiles[0], mouse_cord)
-            clear(&selected_tiles)
+            path = path_finder(world, selected_tile, mouse_cord)
         }
         if(len(path) >0){
             disp_tiles(world, path, rl.PINK, texture)
@@ -67,7 +62,8 @@ game_screen::proc(world:^World_Space, state:^game_state){
                 world.world[i].color = rl.BLUE
                 world.world[i].moveable =0
             }
-            gen_continent(world, 4)
+            //en_continent_test(world)
+            gen_continent(world, 6)
             //gen_land_mass(&world, {104, 47}, 630)
             //gen_land_mass(world, {53,33}, 200)
         }
@@ -87,7 +83,6 @@ game_screen::proc(world:^World_Space, state:^game_state){
             exit = true
             state^=.close
         }
-        rl.GetMouseWheelMove()
         rl.DrawFPS(30,50)
         rl.EndDrawing()
     }

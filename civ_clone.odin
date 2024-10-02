@@ -29,17 +29,7 @@ main::proc(){
     rl.SetTargetFPS(200)
     rl.SetWindowMinSize(20, 20)
 
-
     world:World_Space
-
-    /*
-    image:rl.Image = rl.LoadImage("hex_tex.png")
-    rl.ImageColorTint(&image, rl.WHITE)
-    texture:rl.Texture2D = rl.LoadTextureFromImage(image)
-    rl.UnloadImage(image)
-    scale:= (((size*3))-1)/(1025)
-    */
-
     
     state:game_state = .start_menu
     game_loop: for (!rl.WindowShouldClose()) {
@@ -55,4 +45,5 @@ main::proc(){
         }
     }
     rl.CloseWindow()
+    
 }
