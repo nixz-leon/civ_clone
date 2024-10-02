@@ -188,3 +188,13 @@ gen_land_mass::proc(world:^World_Space, start:[2]int, walks:int, existing_land:.
     return land_mass
 }
 
+//I have two paths for continent generation, I either try and do a plates based approach where I place like 5 spawn
+//points in closish proximity, and then when expandable hits another land mass, it gets added to a potential mountian list
+//from this mountain list it can do a random expansion, it won't account for rivers though
+//for rivers i set the spawn point to be a mountain tile, and then check for the closest river, get a generalized vector
+// and do a semi random walk in the direction of that vector
+//then it gets tricky with biome, but that is a latter question
+
+
+//Alternatively I could start looking into using perlin noise, and doing it that way. have issues with out they look
+//but might be easier in the long run 
