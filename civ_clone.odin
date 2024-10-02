@@ -10,7 +10,7 @@ import sc "core:strconv"
 
 
 
-DEBUG::true
+DEBUG::false
 game_state::enum{
     start_menu,
     pause_menu,
@@ -31,14 +31,6 @@ main::proc(){
 
 
     world:World_Space
-    
-
-    //mouse_cord:[2]int
-    //tile_pos:[2]f32
-    //index:[2]int
-    
-    //path:[dynamic][2]int
-    //path2:[dynamic][2]int
 
     /*
     image:rl.Image = rl.LoadImage("hex_tex.png")
@@ -53,19 +45,14 @@ main::proc(){
     game_loop: for (!rl.WindowShouldClose()) {
         fmt.println(state)
         if(state == .start_menu){
-            fmt.println(world)
             start_screen(&world, &state)
-            //fmt.println(world)
         }else if(state == .game_loop){
-            fmt.println("made it here")
             game_screen(&world, &state)
         }else if (state == .pause_menu){
             pause_screen(&world, &state)
         }else if(state == .close){
             break
         }
-       
-        fmt.println("hoop")
     }
     rl.CloseWindow()
 }

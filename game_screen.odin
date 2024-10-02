@@ -15,12 +15,18 @@ game_screen::proc(world:^World_Space, state:^game_state){
     path2:[dynamic][2]int
     selected_tiles:[dynamic][2]int
     selected_tile:[2]int
+    text_list:[dynamic]rl.Texture2D
+    image:rl.Image = rl.LoadImage("resources/hex_tex.png")
+    rl.ImageColorTint(&image, rl.WHITE)
+    texture:rl.Texture2D = rl.LoadTextureFromImage(image)
+    rl.UnloadImage(image)
+
     for !exit{
         rl.BeginDrawing()
         rl.ClearBackground(rl.BLACK)
     
         for i in 0..<(world.num_x*world.num_y){
-            disp_tile(world, &world.world[i])
+            disp_tile(world, &world.world[i],texture)
         }
 
         mouse_cord = get_qr_mouse(world)
@@ -32,18 +38,14 @@ game_screen::proc(world:^World_Space, state:^game_state){
         }else if(rl.IsMouseButtonDown(.RIGHT)){
             clear(&path)
             path = path_finder(world, selected_tile, mouse_cord)
-        }/*
+        }
         if(rl.IsMouseButtonReleased(.RIGHT)){
             clear(&path)
             path = path_finder(world, selected_tiles[0], mouse_cord)
             clear(&selected_tiles)
-        }*/
-        //fmt.println(selected_tiles)
-        //fmt.println(path)
-
+        }
         if(len(path) >0){
-            //disp_tiles(&tiles, selected_tiles, size, num_x, warp_range, y_range, start_x, start_y, curr_x, curr_y, rl.PINK, texture)
-            disp_tiles(world, path, rl.PINK)
+            disp_tiles(world, path, rl.PINK, texture)
         }
         if(rl.IsKeyPressed(.C)){
             clear(&path)

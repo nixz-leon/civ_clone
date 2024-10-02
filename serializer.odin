@@ -426,6 +426,7 @@ serialize_world_space :: proc (s:^Serializer, world:^World_Space, loc := #caller
     serialize(s, &world.curr_x, loc)or_return
     serialize(s, &world.curr_y, loc)or_return
     serialize(s, &world.size, loc)or_return
+    serialize(s, &world.scale, loc)or_return 
     serialize(s, &world.world, loc)or_return
     return true
 }

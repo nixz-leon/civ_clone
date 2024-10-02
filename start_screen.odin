@@ -85,7 +85,7 @@ start_screen::proc(world:^World_Space,state:^game_state){
         if(curr_act == .new_game){//should bring to another subMenu this can probably be done relatively seemlessly by loading in via cbor, different menus
             init_World_space(world, 106, 66)
             //gen_continent(world, 5)
-            gen_land_mass(world, {53,33}, 20)
+            //gen_land_mass(world, {53,33}, 20)
             exit=true
             state^=.game_loop
         }else if(curr_act == .resume_game){

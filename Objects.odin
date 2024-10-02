@@ -21,6 +21,7 @@ World_Space::struct{
     curr_x:int,
     curr_y:int,
     size:f32,
+    scale:f32,
     world:[dynamic]tile
 }
 
@@ -138,6 +139,7 @@ init_World_space::proc(space:^World_Space, num_x,num_y:int){
     space.start_x = space.window_width/2
     space.start_y = space.window_height/2
     space.size = 40
+    space.scale = (space.size*1.9)/1026
     update_range(space)
 
     start_q:int
@@ -177,6 +179,7 @@ update_world_pos::proc(space:^World_Space){
 update_range::proc(space:^World_Space){
     space.warp_range = auto_cast (space.size*Root_Three* auto_cast(space.num_x))+1
     space.y_range= auto_cast (space.size*1.5*auto_cast(space.num_y))+1 
+    space.scale = (space.size*1.9)/1026
 }
 
 in_group::proc(tiles:^[dynamic][2]int, qr:[2]int) -> (bool){
